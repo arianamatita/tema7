@@ -1,4 +1,4 @@
-package com.db.user;
+package com.db;
 
 public class InvalidUserException extends Exception{
     public InvalidUserException(String msg) {
