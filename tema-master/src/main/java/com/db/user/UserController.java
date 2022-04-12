@@ -4,6 +4,9 @@ import com.db.InvalidUserException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 public class UserController {
 
@@ -15,12 +18,17 @@ public class UserController {
         return userRepository.findById(id);
     }
 
-    @GetMapping("search/{firstName}")
-    public User getUserByFirstName(@PathVariable String firstName) {
-        return userRepository.findByFirstName(firstName);
+    @GetMapping("search")
+    public List<User> getUserByFirstName(@RequestParam String firstName) {
+        List<User> users = new ArrayList<>();
+        Iterable<User> iterable = userRepository.findByFirstName(firstName);
+        for (User user : iterable) {
+            users.add(user);
+        }
+        return users;
     }
 
-    @PostMapping("/create")
+    @PostMapping()
     public void create(@RequestBody User user) throws InvalidUserException {
         if (userRepository.findByEmail(user.getEmail()) == null) {
             userRepository.save(user);
