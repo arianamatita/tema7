@@ -4,17 +4,13 @@ import com.db.account.AccountRepository;
 import com.db.user.User;
 import com.db.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
-
+import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-
-@Service
+@RestController
 public class Streams {
 
     @Autowired
@@ -23,18 +19,34 @@ public class Streams {
     @Autowired
     AccountRepository accountRepository;
 
-    @GetMapping()
-    public List<String> allUsersInitials() {
-       List<String> initials = null;
+    @GetMapping("/initials")
+    public Stream<String> allUsersInitials() {
+        List<String> initials = new ArrayList<>();
         Iterable<User> users = userRepository.findAll();
         for (User user : users) {
             initials.add(user.getFirstName() + " " + user.getLastName());
         }
-//        String allInitials = initials.stream()
-//                .map(str -> str.substring(0,1))
-//                .collect(Collectors.joining());
-        String allInitials = initials.stream()
-                .map(str -> str.split(" "))
-                .collect(Collectors.joining(" "));
+        return initials.stream().map(this::getInitials);
     }
+
+    @GetMapping("/gmail")
+    public long getNumberByGmail() {
+        List<User> users = (List<User>) userRepository.findAll();
+        return users.stream().filter(user -> user.getEmail().contains("@gmail")).count();
+    }
+
+
+
+
+    private String getInitials(String name) {
+        String[] words = name.split(" ");
+        name = String.valueOf(Character.toUpperCase(
+                name.charAt(0)));
+        String name1 = "";
+        name1 = String.valueOf(Character.toUpperCase(
+                words[1].charAt(0)));
+        name = name.concat(name1);
+        return name;
+    }
+
 }
