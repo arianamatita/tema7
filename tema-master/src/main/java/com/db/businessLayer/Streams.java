@@ -6,6 +6,7 @@ import com.db.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -39,9 +40,23 @@ public class Streams {
     public long getNumberByFirstName() {
         List<User> users = (List<User>) userRepository.findAll();
         return users.stream().filter(user -> (user.getFirstName().contains("A") ||
-                        user.getFirstName().contains("a") ) && user.getAge() < 20).count();
+                user.getFirstName().contains("a")) && user.getAge() < 20).count();
     }
 
+    @GetMapping("/FirstNameInitials")
+    public Stream<String> getAllUsersFirstNameInitials() {
+        String initials = "";
+        List<User> users = (List<User>) userRepository.findAll();
+        return users.stream().filter(user -> user.getFirstName());
+    }
+
+    private String getFirstNameInitials(String name) {
+        String[] words = name.split(" ");
+        name = String.valueOf(Character.toUpperCase(
+        name.charAt(0)));
+        System.out.println(name);
+        return name;
+    }
 
     private String getInitials(String name) {
         String[] words = name.split(" ");
