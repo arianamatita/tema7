@@ -35,7 +35,12 @@ public class Streams {
         return users.stream().filter(user -> user.getEmail().contains("@gmail")).count();
     }
 
-
+    @GetMapping("/containsA")
+    public long getNumberByFirstName() {
+        List<User> users = (List<User>) userRepository.findAll();
+        return users.stream().filter(user -> (user.getFirstName().contains("A") ||
+                        user.getFirstName().contains("a") ) && user.getAge() < 20).count();
+    }
 
 
     private String getInitials(String name) {
