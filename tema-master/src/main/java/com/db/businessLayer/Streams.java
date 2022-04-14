@@ -18,9 +18,6 @@ public class Streams {
     @Autowired
     UserRepository userRepository;
 
-    @Autowired
-    AccountRepository accountRepository;
-
     @GetMapping("/initials")
     public Stream<String> allUsersInitials() {
         List<String> initials = new ArrayList<>();
@@ -53,6 +50,15 @@ public class Streams {
                 .collect(Collectors.joining());
         return joined;
     }
+
+    @GetMapping("listEachLastName")
+    public List<String> listOfEachLastName() {
+        List<User> users = (List<User>) userRepository.findAll();
+        List<String> list = users.stream().map(User::getLastName)
+                .distinct().collect(Collectors.toList());
+        return list;
+    }
+
 
     private String getFirstNameInitials(String name) {
         String[] words = name.split(" ");
