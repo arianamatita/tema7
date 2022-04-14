@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RestController
@@ -44,17 +45,18 @@ public class Streams {
     }
 
     @GetMapping("/FirstNameInitials")
-    public Stream<String> getAllUsersFirstNameInitials() {
-        String initials = "";
+    public String getAllUsersFirstNameInitials() {
         List<User> users = (List<User>) userRepository.findAll();
-        return users.stream().filter(user -> user.getFirstName());
+        List<String> initials = users.stream().map(User::getFirstName)
+                .collect(Collectors.toList());
+        String joined = initials.stream().map(this::getFirstNameInitials)
+                .collect(Collectors.joining());
+        return joined;
     }
 
     private String getFirstNameInitials(String name) {
         String[] words = name.split(" ");
-        name = String.valueOf(Character.toUpperCase(
-        name.charAt(0)));
-        System.out.println(name);
+        name = String.valueOf(Character.toUpperCase(name.charAt(0)));
         return name;
     }
 
