@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 public class TransferMoneyServiceExtern implements TransferMoneyServices {
     @Override
     public String executeTransfer(float amount, Account sendTo, Account from) {
-
+        sendTo.setAmount(sendTo.getAmount() - amount);
         return "Update send Account!";
     }
 }

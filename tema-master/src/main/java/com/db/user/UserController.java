@@ -3,6 +3,7 @@ package com.db.user;
 import com.db.InvalidUserException;
 import com.db.account.Account;
 import com.db.account.AccountRepository;
+import com.db.transferMoney.TransferDetails;
 import com.db.transferMoney.TransferMoneyServiceExtern;
 import com.db.transferMoney.TransferMoneyServiceIntern;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,19 +97,19 @@ public class UserController {
     }
 
     @PostMapping("/sendMoney")
-    public void sendMoney(String to, String from, float amount) {
-        Account fromAccount = accountRepository.findByIban(from);
-        Account toAccount = accountRepository.findByIban(to);
-        if (validIban(to) && amountAvailable(fromAccount, amount)) {
-            if (fromAccount.getIban().contains("intern")) {
-                transferMoneyServiceIntern.executeTransfer(amount, toAccount, fromAccount);
+    public void sendMoney(@RequestBody TransferDetails transferDetails) throws InvalidUserException{
+        Account fromAccount = accountRepository.findByIban(transferDetails.getFrom());
+        Account toAccount = accountRepository.findByIban(transferDetails.getTo());
+        if (validIban(transferDetails.getTo()) && amountAvailable(fromAccount, transferDetails.getAmount())) {
+            if (fromAccount.getIban().contains("INT")) {
+                transferMoneyServiceIntern.executeTransfer(transferDetails.getAmount(), toAccount, fromAccount);
                 accountRepository.save(fromAccount);
                 accountRepository.save(toAccount);
-            } else {
-                transferMoneyServiceExtern.executeTransfer(amount, toAccount, fromAccount);
-
+            } else if  (fromAccount.getIban().contains("INT")) {
+                transferMoneyServiceExtern.executeTransfer(transferDetails.getAmount(), toAccount, fromAccount);
+                accountRepository.save(toAccount);
             }
-        }
+        } else throw new InvalidUserException("Invalid IBAN or not enough money");
     }
 
 
@@ -130,7 +131,7 @@ public class UserController {
     }
 
     private boolean validIban(String iban) {
-        return Optional.ofNullable(iban).isPresent();
+        return Optional.ofNullable(iban).isPresent() && (iban.contains("INT") || iban.contains("EXT"));
     }
 
     private boolean amountAvailable(Account account, float amount) {
