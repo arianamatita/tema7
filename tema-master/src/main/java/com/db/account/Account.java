@@ -20,6 +20,7 @@ public class Account {
     private User user;
     private String currency;
     private String iban;
+    private float amount;
 
     public Account() {
     }
@@ -27,17 +28,20 @@ public class Account {
     public Account(User user, String currency) {
         this.user = user;
         this.currency = currency;
+        this.amount = 0;
     }
 
     public void setIban(String iban) {
         this.iban = iban;
     }
 
-    public String generateIban() {
+    public String generateIban(String internalOrExternal) {
         Random rand = new Random();
         String iban = this.currency;
-        for (int i = 0; i < 14; i++) {
-            int n = rand.nextInt(10) + 0;
+        iban += this.getUser().getId();
+        iban += internalOrExternal;
+        for (int i = 0; i < 10; i++) {
+            int n = rand.nextInt(10);
             iban += Integer.toString(n);
         }
         return iban;

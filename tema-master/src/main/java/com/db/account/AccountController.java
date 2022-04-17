@@ -4,10 +4,7 @@ import com.db.InvalidUserException;
 import com.db.user.User;
 import com.db.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +18,12 @@ public class AccountController {
     @Autowired
     UserRepository userRepository;
 
-    @PostMapping("user/{id}/account/{currency}")
-    public void createAccount(@PathVariable String currency, @PathVariable int id) throws InvalidUserException {
+    @PostMapping("user/{id}/account")
+    public void createAccount(@PathVariable int id, @RequestParam String currency, @RequestParam String type) throws InvalidUserException {
         User user = userRepository.findById(id);
         if (user != null) {
             Account account = new Account(user, currency);
-            account.setIban(account.generateIban());
+            account.setIban(account.generateIban(type));
             accountRepository.save(account);
         } else throw new InvalidUserException("Invalid user!");
     }

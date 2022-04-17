@@ -1,11 +1,13 @@
 package com.db.user;
 
 import com.db.InvalidUserException;
+import com.db.account.Account;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -78,6 +80,11 @@ public class UserController {
         return list;
     }
 
+    @PostMapping("/sendMoney")
+    public void sendMoney(String iban) {
+
+    }
+
 
     private String getFirstNameInitials(String name) {
         String[] words = name.split(" ");
@@ -94,5 +101,13 @@ public class UserController {
                 words[1].charAt(0)));
         name = name.concat(name1);
         return name;
+    }
+
+    private boolean validIban(String iban) {
+        return Optional.ofNullable(iban).isPresent();
+    }
+
+    private boolean amountAvailable(Account account, int amount) {
+        return account.getAmount() > amount;
     }
 }
