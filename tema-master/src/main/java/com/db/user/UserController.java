@@ -2,7 +2,11 @@ package com.db.user;
 
 import com.db.InvalidUserException;
 import com.db.account.Account;
+import com.db.account.AccountRepository;
+import com.db.transferMoney.TransferMoneyServiceExtern;
+import com.db.transferMoney.TransferMoneyServiceIntern;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -15,7 +19,18 @@ import java.util.stream.Stream;
 public class UserController {
 
     @Autowired
+    @Qualifier("intern")
+    TransferMoneyServiceIntern transferMoneyServiceIntern;
+
+    @Autowired
+    @Qualifier("extern")
+    TransferMoneyServiceExtern transferMoneyServiceExtern;
+
+    @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    AccountRepository accountRepository;
 
     @GetMapping("/user/{id}")
     public User getUserById(@PathVariable int id) {
@@ -81,8 +96,19 @@ public class UserController {
     }
 
     @PostMapping("/sendMoney")
-    public void sendMoney(String iban) {
+    public void sendMoney(String to, String from, float amount) {
+        Account fromAccount = accountRepository.findByIban(from);
+        Account toAccount = accountRepository.findByIban(to);
+        if (validIban(to) && amountAvailable(fromAccount, amount)) {
+            if (fromAccount.getIban().contains("intern")) {
+                transferMoneyServiceIntern.executeTransfer(amount, toAccount, fromAccount);
+                accountRepository.save(fromAccount);
+                accountRepository.save(toAccount);
+            } else {
+                transferMoneyServiceExtern.executeTransfer(amount, toAccount, fromAccount);
 
+            }
+        }
     }
 
 
@@ -107,7 +133,7 @@ public class UserController {
         return Optional.ofNullable(iban).isPresent();
     }
 
-    private boolean amountAvailable(Account account, int amount) {
+    private boolean amountAvailable(Account account, float amount) {
         return account.getAmount() > amount;
     }
 }

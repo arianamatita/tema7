@@ -1,15 +1,16 @@
 package com.db.transferMoney;
 
 
-import org.springframework.context.annotation.Profile;
+import com.db.account.Account;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-@Profile("extern")
+@Qualifier("extern")
 @Service
 public class TransferMoneyServiceExtern implements TransferMoneyServices {
     @Override
-    public String executeTransfer(String sendTo, String from) {
+    public String executeTransfer(float amount, Account sendTo, Account from) {
 
-        return "";
+        return "Update send Account!";
     }
 }

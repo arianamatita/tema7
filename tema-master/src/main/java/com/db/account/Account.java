@@ -3,11 +3,13 @@ package com.db.account;
 import com.db.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Random;
 
 @Getter
+@Setter
 @Entity
 public class Account {
     @Id
