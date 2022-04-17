@@ -20,6 +20,9 @@ public class AccountController {
 
     @PostMapping("user/{id}/account")
     public void createAccount(@PathVariable int id, @RequestParam String currency, @RequestParam String type) throws InvalidException {
+        if(typeForIban(type)) {
+            throw new InvalidException("Invalid type for iban!");
+        }
         User user = userRepository.findById(id);
         if (user != null) {
             Account account = new Account(user, currency);
@@ -41,5 +44,8 @@ public class AccountController {
         return accounts;
     }
 
+    private boolean typeForIban(String type) {
+        return type == "INT" || type == "EXT";
+    }
 
 }

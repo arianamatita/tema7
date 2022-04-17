@@ -99,15 +99,14 @@ public class UserController {
     public void sendMoney(@RequestBody TransferDetails transferDetails) throws InvalidException {
         Account fromAccount = accountRepository.findByIban(transferDetails.getFrom());
         Account toAccount = accountRepository.findByIban(transferDetails.getTo());
-        if (fromAccount.getIban().contains("INT")) {
+        if (fromAccount.getIban().contains("INT") && toAccount.getIban().contains("INT")) {
             transferMoneyServiceIntern.executeTransfer(transferDetails.getAmount(), toAccount, fromAccount);
             accountRepository.save(fromAccount);
             accountRepository.save(toAccount);
-        } else if (fromAccount.getIban().contains("EXT")) {
+        } else if (fromAccount.getIban().contains("EXT") && toAccount.getIban().contains("EXT")) {
             transferMoneyServiceExtern.executeTransfer(transferDetails.getAmount(), toAccount, fromAccount);
             accountRepository.save(toAccount);
-        }
-       else throw new InvalidException("Invalid Iban!");
+        } else throw new InvalidException("Invalid Iban!");
     }
 
 
