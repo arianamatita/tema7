@@ -1,6 +1,6 @@
 package com.db.user;
 
-import com.db.InvalidUserException;
+import com.db.InvalidException;
 import com.db.account.Account;
 import com.db.account.AccountRepository;
 import com.db.transferMoney.TransferDetails;
@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -49,10 +48,10 @@ public class UserController {
     }
 
     @PostMapping()
-    public void create(@RequestBody User user) throws InvalidUserException {
+    public void create(@RequestBody User user) throws InvalidException {
         if (userRepository.findByEmail(user.getEmail()) == null) {
             userRepository.save(user);
-        } else throw new InvalidUserException("Invalid!");
+        } else throw new InvalidException("Invalid!");
     }
 
     @GetMapping("/initials")
@@ -96,20 +95,19 @@ public class UserController {
         return list;
     }
 
-    @PostMapping("/sendMoney")
-    public void sendMoney(@RequestBody TransferDetails transferDetails) throws InvalidUserException{
+    @GetMapping("/sendMoney")
+    public void sendMoney(@RequestBody TransferDetails transferDetails) throws InvalidException {
         Account fromAccount = accountRepository.findByIban(transferDetails.getFrom());
         Account toAccount = accountRepository.findByIban(transferDetails.getTo());
-        if (validIban(transferDetails.getTo()) && amountAvailable(fromAccount, transferDetails.getAmount())) {
-            if (fromAccount.getIban().contains("INT")) {
-                transferMoneyServiceIntern.executeTransfer(transferDetails.getAmount(), toAccount, fromAccount);
-                accountRepository.save(fromAccount);
-                accountRepository.save(toAccount);
-            } else if  (fromAccount.getIban().contains("INT")) {
-                transferMoneyServiceExtern.executeTransfer(transferDetails.getAmount(), toAccount, fromAccount);
-                accountRepository.save(toAccount);
-            }
-        } else throw new InvalidUserException("Invalid IBAN or not enough money");
+        if (fromAccount.getIban().contains("INT")) {
+            transferMoneyServiceIntern.executeTransfer(transferDetails.getAmount(), toAccount, fromAccount);
+            accountRepository.save(fromAccount);
+            accountRepository.save(toAccount);
+        } else if (fromAccount.getIban().contains("EXT")) {
+            transferMoneyServiceExtern.executeTransfer(transferDetails.getAmount(), toAccount, fromAccount);
+            accountRepository.save(toAccount);
+        }
+       else throw new InvalidException("Invalid Iban!");
     }
 
 
@@ -130,11 +128,5 @@ public class UserController {
         return name;
     }
 
-    private boolean validIban(String iban) {
-        return Optional.ofNullable(iban).isPresent() && (iban.contains("INT") || iban.contains("EXT"));
-    }
 
-    private boolean amountAvailable(Account account, float amount) {
-        return account.getAmount() > amount;
-    }
 }
