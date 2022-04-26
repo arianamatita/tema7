@@ -27,6 +27,12 @@ public class Account {
     public Account() {
     }
 
+    public Account(User user, String iban, float amount) {
+        this.user = user;
+        this.iban = iban;
+        this.amount = amount;
+    }
+
     public Account(User user, String currency) {
         this.user = user;
         this.currency = currency;

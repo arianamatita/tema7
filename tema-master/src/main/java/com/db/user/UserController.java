@@ -1,6 +1,7 @@
 package com.db.user;
 
 import com.db.InvalidException;
+import com.db.UnauthorizedException;
 import com.db.account.Account;
 import com.db.account.AccountRepository;
 import com.db.transferMoney.TransferDetails;
@@ -10,8 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -108,7 +112,6 @@ public class UserController {
             accountRepository.save(toAccount);
         } else throw new InvalidException("Invalid Iban!");
     }
-
 
     private String getFirstNameInitials(String name) {
         String[] words = name.split(" ");
